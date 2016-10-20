@@ -1,0 +1,65 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    </head>
+    <body>
+        <p>Count numbers: <output id="result"></output></p>
+        <button onclick="startWorker()">Start Worker</button>
+        <button onclick="stopWorker()">Stop Worker</button>
+        <script>
+            var w;
+
+            function startWorker() {
+                if(typeof(Worker) !== "undefined") {
+                    if(typeof(w) == "undefined") {
+                        w = new Worker("js/worker.js");
+                    }
+                    console.log('main thread');
+                    w.onmessage = function(event) {
+                        switch(event.data.action) {
+                            case 'init':
+                                console.log('main:thread:onmessage:init', +new Date() - event.data.startTime, event.data.initTimeArray, event.data);
+                                break;
+                            case 'sendArray':
+                                console.log('main:thread:onmessage:sendArray', +new Date() - event.data.startTime, event.data.initTimeArray, event.data);
+                            break;
+                            default: {}
+                        }
+
+                        //document.getElementById("result").innerHTML = event.data.index;
+                        //w.postMessage({arr:['test']})
+                    };
+                    w.postMessage({action:'init'});
+
+                    var arr = [];
+                    var n = 100000;
+                    var startTime = +new Date();
+                    for(var i = 0; i < n; i++) {
+                        arr.push({index:i, name: "name_"+i});
+                    }
+                    var endTime = +new Date() - startTime;
+                    w.postMessage({action:'sendArray', arr:arr, initTimeArray: endTime,startTime: +new Date()});
+                } else {
+                    document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Workers...";
+                }
+            }
+
+            function stopWorker() {
+                w.terminate();
+                w = undefined;
+            }
+        </script>
+    </body>
+</html>
