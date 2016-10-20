@@ -44,7 +44,7 @@
                     w.postMessage({action:'init'});
 
                     var arr = [];
-                    var n = 100000;
+                    var n = 10000;//(50-100ms-firefox-chrome)*1000 = 100000 = 100s = 1m 40s
                     var startTime = +new Date();
                     for(var i = 0; i < n; i++) {
                         arr.push({index:i, name: "name_"+i});

@@ -6,7 +6,7 @@ onmessage = function(event) {
 		case 'init':
 			var arr = [];
 
-			var n = 100000;
+			var n = 10000;//(30-60ms-firefox-chrome)*1000 = 100000 = 100s = 1m 40s
 
 			var startTime = +new Date();
 			for(var i = 0; i < n; i++) {
