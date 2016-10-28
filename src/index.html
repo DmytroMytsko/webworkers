@@ -1,65 +1,145 @@
 <!doctype html>
 <html class="no-js" lang="">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <!-- Place favicon.ico in the root directory -->
+    <!--<script src="js/subworkers.js"></script>
+    <script src="js/browser.js"></script>-->
 
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
-        <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-    </head>
-    <body>
-        <p>Count numbers: <output id="result"></output></p>
-        <button onclick="startWorker()">Start Worker</button>
-        <button onclick="stopWorker()">Stop Worker</button>
-        <script>
-            var w;
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+</head>
+<body>
+<h1>Subworker Test</h1>
+    <pre id="output">
+    </pre>
 
-            function startWorker() {
-                if(typeof(Worker) !== "undefined") {
-                    if(typeof(w) == "undefined") {
-                        w = new Worker("js/worker.js");
-                    }
-                    console.log('main thread');
-                    w.onmessage = function(event) {
-                        switch(event.data.action) {
-                            case 'init':
-                                console.log('main:thread:onmessage:init', +new Date() - event.data.startTime, event.data.initTimeArray, event.data);
-                                break;
-                            case 'sendArray':
-                                console.log('main:thread:onmessage:sendArray', +new Date() - event.data.startTime, event.data.initTimeArray, event.data);
-                            break;
-                            default: {}
-                        }
+<p>Count numbers: <output id="result"></output></p>
+<button onclick="startWorker()">Start Worker</button>
+<button onclick="stopWorker()">Stop Worker</button>
+<button onclick="Test()">Test</button>
+<script>
+    var w, w1, w2, w3;
 
-                        //document.getElementById("result").innerHTML = event.data.index;
-                        //w.postMessage({arr:['test']})
-                    };
-                    w.postMessage({action:'init'});
-
-                    var arr = [];
-                    var n = 10000;//(50-100ms-firefox-chrome)*1000 = 100000 = 100s = 1m 40s
-                    var startTime = +new Date();
-                    for(var i = 0; i < n; i++) {
-                        arr.push({index:i, name: "name_"+i});
-                    }
-                    var endTime = +new Date() - startTime;
-                    w.postMessage({action:'sendArray', arr:arr, initTimeArray: endTime,startTime: +new Date()});
-                } else {
-                    document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Workers...";
+    function startWorker() {
+        if(typeof(Worker) !== "undefined") {
+            if(typeof(w) == "undefined") {
+                w = new Worker("js/worker.js");
+                //w1 = new Worker("js/worker1.js");
+                //w2 = new Worker("js/worker2.js");
+                //w3 = new Worker("js/worker3.js");
+            }
+            console.log('main thread');
+            w.onmessage = function(event) {
+                switch(event.data.action) {
+                    case 'init':
+                        var startTime = +new Date();
+                        var data = JSON.parse(event.data.arr);
+                        console.log('main:thread:w:onmessage:init', startTime - event.data.startTime, event.data.initTimeArray, data, data.length);
+                        w.postMessage({action:'sendArray'});
+                        break;
+                    case 'sendArray':
+                        console.log('main:thread:w:onmessage:sendArray', event.data.item);
+                        break;
+                    default: {}
                 }
-            }
 
-            function stopWorker() {
-                w.terminate();
-                w = undefined;
-            }
-        </script>
-    </body>
+                //document.getElementById("result").innerHTML = event.data.index;
+                //w.postMessage({arr:['test']})
+            };
+           /*w1.onmessage = function(event) {
+               console.log('main:w1:event', event.data);
+                switch(event.data.action) {
+                    case 'init':
+                        console.log('main:thread:w1:onmessage:init', +new Date() - event.data.startTime, event.data.initTimeArray, event.data);
+                        w1.postMessage({action:'sendArray'});
+                        break;
+                    case 'sendArray':
+                        console.log('main:thread:w1:onmessage:sendArray',  event.data.item);
+                        break;
+                    default: {}
+                }
+
+                //document.getElementById("result").innerHTML = event.data.index;
+                //w.postMessage({arr:['test']})
+            };*/
+            /*w2.onmessage = function(event) {
+                switch(event.data.action) {
+                    case 'init':
+                        console.log('main:thread:w2:onmessage:init', +new Date() - event.data.startTime, event.data.initTimeArray, event.data);
+                        w2.postMessage({action:'sendArray'});
+                        break;
+                    case 'sendArray':
+                        console.log('main:thread:w2:onmessage:sendArray', event.data.item);
+                        break;
+                    default: {}
+                }
+
+                //document.getElementById("result").innerHTML = event.data.index;
+                //w.postMessage({arr:['test']})
+            };
+            w3.onmessage = function(event) {
+                switch(event.data.action) {
+                    case 'init':
+                        console.log('main:thread:w3:onmessage:init', +new Date() - event.data.startTime, event.data.initTimeArray, event.data);
+                        w3.postMessage({action:'sendArray'});
+                        break;
+                    case 'sendArray':
+                        console.log('main:thread:w3:onmessage:sendArray', event.data.item);
+                        break;
+                    default: {}
+                }
+
+                //document.getElementById("result").innerHTML = event.data.index;
+                //w.postMessage({arr:['test']})
+            };*/
+            //w1.postMessage({action:'init'});
+            //w3.postMessage({action:'init'});
+            w.postMessage({action:'init'});
+            //w2.postMessage({action:'init'});
+
+            /*var arr = [];
+             var n = 1;//(50-100ms-firefox-chrome)*1000 = 100000 = 100s = 1m 40s
+             var startTime = +new Date();
+             for(var i = 0; i < n; i++) {
+             arr.push({
+             index:i, name: "name_"+i,
+             index1:i+1, name1: "name11111111111111111111111111111111_"+i,
+             index2:i+2, name2: "name22222222222222222222222222222222222222222222222222222222222222_"+i,
+             index3:i+3, name3: "name333333333333333333333333333333333333333_"+i,
+             index4:i+4, name4: "name44444444444444444444444444444444444444444444444444444444444444444444444444444_"+i,
+             index13:i+13, name13: "name1333333333333333333333333333333333333333333333333333_"+i,
+             index16:i+16, name16: "name16666666666666666666666666666666666666666666666666666666666666666_"+i,
+             index17:i+17, name17: "name1777777777777777777777777777777777777777777777_"+i,
+             index18:i+18, name18: "name1888888888888888888888888888888888888888888888888888888888888888888888888_"+i,
+             index19:i+19, name19: "name19999999999999999999999999999999999999999999999999999999999_"+i,
+             });
+             }
+             var endTime = +new Date() - startTime;
+             w.postMessage({action:'sendArray', arr:arr, initTimeArray: endTime,startTime: +new Date()});*/
+        } else {
+            document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Workers...";
+        }
+    }
+
+    function stopWorker() {
+        w.terminate();
+        w = undefined;
+        //w1.terminate();
+        //w1 = undefined;
+        /*w2.terminate();
+        w2 = undefined;
+        w3.terminate();
+        w3 = undefined;*/
+    }
+
+    function Test() {
+        console.log("test");
+    }
+</script>
+</body>
 </html>
